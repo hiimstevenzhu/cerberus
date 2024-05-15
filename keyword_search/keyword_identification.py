@@ -1,6 +1,7 @@
 # This python script contains keyword-searching algorithms, given a keyword set
 # This will serve as a benchmark, using non-ml models to do this
 from typing import List, Any, Dict
+from keyword_search import parse_helper as ph
 
 # 
 # We will use a dictionary data structure to store and update the keyword cluster(s) 
@@ -10,6 +11,7 @@ clusters = {}
 def insertCluster(keywords:List[str], clusterName:str) -> None:
     clusters[clusterName] = []
     for keyword in keywords:
+        splitKeyword = keyword.split()
         clusters[clusterName].append(keyword.upper())
             
 def updateCluster(keywords:List[str], clusterName:str) -> None:
@@ -27,9 +29,12 @@ def printCluster(clusterName:str) -> None:
 #
 def matchKeywords(text: str, clustername) -> None:
     numMatch, matchedKeywords, matchDict = matchHelper(text, clustername)
-    print(f"Number of keywords matched: {numMatch}")
-    print(f"Matched keywords: {matchedKeywords}")
-    print(f"Number of matches: {matchDict}")
+    if numMatch >= 1:
+        print(f"Number of keywords matched: {numMatch}")
+        print(f"Matched keywords: {matchedKeywords}")
+        print(f"Number of matches: {matchDict}")
+    else:
+        print("No keywords matched")
     return
 
 #
@@ -38,6 +43,7 @@ def matchKeywords(text: str, clustername) -> None:
 # @output: INT number of keywords matched, LIST matched keywords, DICT number of matches
 # 
 def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
+    text = ph.cleanText(text)
     keywords = clusters[clustername]
     numMatch = 0
     matchedKeywords = []
@@ -60,5 +66,7 @@ def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
 # @output: BOOL whether the keyword is found in the text
 #
 def BooyerMoore(text: str, kw: str) -> bool:
-    # initialise the 
+    # for consideration
     return
+
+

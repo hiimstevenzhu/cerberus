@@ -2,6 +2,12 @@
 
 a ai-based pipeline for keyword identification in real-time speech
 
+# dependencies
+
+openai whisper (follow the README under https://github.com/openai/whisper)
+faster whisper [pip install -U openai-whisper]
+real time usage of openai whisper (https://github.com/davabase/whisper_real_time)
+
 # workflow:
 
 we first implement a simple benchmark:
@@ -24,8 +30,6 @@ multi-language and language detection and automatic switching
 # Work progress:
 
 14/05:
-Complete:
-
 Started:
 
 - Started a keyword finding algorithm:
@@ -33,3 +37,19 @@ Started:
 To complete:
 
 - Enhance the keyword finding algorithm to find number of times keywords are matched
+- Implement faster-whisper
+
+15/05
+Started:
+
+- Implemented openai-whisper (faster-whisper requires gpu to run faster)
+- Integrated the keyword finding algorithm to ping when there is recognition of certain keywords
+
+To complete:
+
+- Enhance the keyword finding algorithm to find number of times keywords are matched, also fix it such that it matches strings of more than one word. In this case, we will be using the Boyer-Moore's algorithm.
+
+# references
+
+https://github.com/openai/whisper
+https://github.com/davabase/whisper_real_time
