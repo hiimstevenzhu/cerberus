@@ -11,7 +11,6 @@ clusters = {}
 def insertCluster(keywords:List[str], clusterName:str) -> None:
     clusters[clusterName] = []
     for keyword in keywords:
-        splitKeyword = keyword.split()
         clusters[clusterName].append(keyword.upper())
             
 def updateCluster(keywords:List[str], clusterName:str) -> None:
@@ -48,16 +47,26 @@ def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
     numMatch = 0
     matchedKeywords = []
     matchDict = {}
-    splitText = text.upper().split()
+    text = text.upper()
     for keyword in keywords:
-        for word in splitText:
-            if keyword == word:
-                numMatch += 1
-                matchedKeywords.append(keyword)
-                if keyword in matchDict:
-                    matchDict[keyword] += 1
-                else:
-                    matchDict[keyword] = 1
+        # if BooyerMoore(text, keyword):
+        #     numMatch += 1
+        #     matchedKeywords.append(keyword)
+        #     if keyword in matchDict:
+        #         matchDict[keyword] += 1
+        #     else:
+        #         matchDict[keyword] = 1
+        
+        '''
+        In order to prevent the string matching algorithm from matching that are short/possible substrings like I, am, etc
+        We simply add spaces to the beginning and end of the keyword
+        '''
+        keyword = " " + keyword + " "
+        count = BooyerMooreCount(text, keyword)
+        if count > 0:
+            numMatch += count
+            matchedKeywords.append(keyword)
+            matchDict[keyword] = count
     return (numMatch, matchedKeywords, matchDict)
 
 # 
@@ -66,7 +75,86 @@ def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
 # @output: BOOL whether the keyword is found in the text
 #
 def BooyerMoore(text: str, kw: str) -> bool:
-    # for consideration
-    return
+    charJump = computeCharJump(kw)
+    matchJump = computeMatchJump(kw)
+    m = len(kw)-1
+    n = len(text)-1
+    j = k = m
+    while (j <= n):
+        if kw[k] == text[j]:
+            if k == 0:
+                return True
+            else:
+                j -= 1
+                k -= 1
+        else:
+            j += max(charJump[text[j]], matchJump[k])
+            k = m
+    return False
 
+def computeCharJump(kw: str) -> Dict[str, int]:
+    charJump = {}
+    m = len(kw)
+    for i in range(27):
+        if i == 26:
+            charJump[" "] = m
+        else:
+            charJump[chr(i+65)] = m
+    for i in range(m):
+        charJump[kw[i]] = m - i - 1
+    return charJump
+
+def computeMatchJump(kw: str) -> List[int]:
+    matchJump = [0] * len(kw)
+    m = len(kw)
+    suffix = [0] * m
+    suffix[m-1] = m
+    g = m-1
+    f = 0
+    for i in range(m-2, -1, -1):
+        if i > g and suffix[i + m - 1 - f] < i - g:
+            suffix[i] = suffix[i + m - 1 - f]
+        else:
+            if i < g:
+                g = i
+            f = i
+            while (g >= 0 and kw[g] == kw[g + m - 1 - f]):
+                g -= 1
+            suffix[i] = f - g
+    for i in range(m):
+        matchJump[i] = m - suffix[m-1]
+    for i in range(m-1):
+        matchJump[m - suffix[i] - 1] = m - i - 1
+    return matchJump
+
+def BooyerMooreCount(text: str, kw: str) -> bool:
+    charJump = computeCharJump(kw)
+    # matchJump = computeMatchJump(kw)
+    # DEBUG
+    # print(charJump)
+    # print(matchJump)
+    # print(f"Matching for {kw} in {text}...")
+    m = len(kw)-1
+    n = len(text)-1
+    j = k = m
+    count = 0
+    while (j <= n):
+        # DEBUG
+        # print(f"on {count} iteration, comparing {kw[k]} {k} with {text[j]} {j}")
+        if kw[k] == text[j]:
+            if k == 0:
+                count += 1
+                k = m
+                j = j + m + 1
+                # print(f"Match found, count is {count}, new k is {k}, new j is {j}")
+            else:
+                j -= 1
+                k -= 1
+        else:
+            #jump = max(charJump[text[j]], matchJump[k]) # original code, but we realise that on duplicates with spacing, matchJump is wonky - we resort to simple Boyer-Moore.
+            jump = max(charJump[text[j]], m-k+1)
+            j += jump
+            # print(f"j jumps by {jump}")
+            k = m
+    return count
 

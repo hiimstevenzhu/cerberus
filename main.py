@@ -13,7 +13,6 @@ from sys import platform
 from keyword_search import keyword_identification as ki
 
 # initialisation
-# initialisation
 clusterName = "red"
 keywords = ["Sir stop", "stop sir", "Sir stop Sir", "I", "you", "am"]
 updKeywords = ["Test", "a", 'do not move', 'don\'t move', 'put your hands up']
@@ -24,8 +23,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="medium", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
-    parser.add_argument("--non_english", action='store_true',
-                        help="Don't use the english model.")
+    parser.add_argument("--non_english", action='store_false',
+                        help="Use the english model.")
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
@@ -68,6 +67,7 @@ def main():
 
     # Load / Download model
     model = args.model
+    print(f"Loading {args.model} model, model non_english: {args.non_english}")
     if args.model != "large" and not args.non_english:
         model = model + ".en"
     audio_model = whisper.load_model(model)
@@ -132,6 +132,7 @@ def main():
                 # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')
                 for line in transcription:
+                    print("1 matching keywords...")
                     ki.matchKeywords(line, clusterName)
                     print(f"Current read: {line}")
                 # Flush stdout.
@@ -144,6 +145,7 @@ def main():
 
     print("\n\nTranscription:")
     for line in transcription:
+        print("2 matching keywords...")
         ki.matchKeywords(line, clusterName)
         print(f"Current read: {line}")
 

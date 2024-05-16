@@ -1,0 +1,12 @@
+Cerberus serves as a "messenger" program that is able to alert a hypothetical command center 
+when any on-ground cases happen.
+
+Security Companies typically have standard operating procedures when it comes to critical security scenarios.
+These standard operating procedures would involve some sort of information passing down a chain-of-command, such that
+when a situation does occur, a localised unit/team would be informed of it, and is able to respond effectively.
+
+The process of this information passing is traditionally manual in nature - it requires some individual to be able to discern an escalation of an interaction,
+and then notify their respective superiors. 
+
+This is where Cerberus provides value. The intention of Cerberus is to be able to monitor live situations automatically, and be able to discern,
+on some level, whether or not a siutation will escalate to a level that requires specific attention.

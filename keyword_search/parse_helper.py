@@ -5,4 +5,4 @@ def cleanText(text:str) -> str:
     for char in text:
         if char.isalnum() or char.isspace():
             cleanedText += char
-    return cleanedText
+    return " " + cleanedText + ""
