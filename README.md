@@ -86,7 +86,7 @@ To complete:
 
 To consider:
 
-- Implementing an ensemble of models, to poll for their confidence in terms of the language spoken
+- Implementing an ensemble of models, one trained to detect each language, to poll for their confidence in terms of the language spoken (?)
 - Using GPU to train a model off Singlish using the National Speech Corpus
 
 # references
