@@ -1,0 +1,8 @@
+False Alarms are a big problem for Cerberus to tackle, as we want to ensure that we capture as accurately as possible, 
+events that actually are urgent in nature.
+
+Current ideas on how to ensure some robustness in reliability are:
+- Only raising when a certain score/ the number of matches goes beyond a certain value
+- Using NLP to extract keywords out of the next to parse to a GPT to determine severity(Overkill?)
+- Using sentiment analysis as a base filter to ensure that some hostility exists(?)
+- ** To explore ** Recognising tone

@@ -80,7 +80,7 @@ To complete:
 - Extending to other languages, Chinese, Malay, Tamil, Hindu perfectly.
 
 1. Boyer-Moore's does not fit well with non-roman alphabet - speaking in chinese creates problems
-2. The model has a separate feature which detects some semblance of an accent and transcribes everything into that base accent language. For me, it transcribes into malay. I need to test this out a bit.
+2. The model has a separate feature which detects some semblance of an accent and transcribes everything into that base accent language. For me, it transcribes into malay.
 3. The speed is exceedingly slow, and is unable to support long sentences/conversations.
 4. The model needs to be able to identify the main individual - some sort of voice recognition is required..?
 
