@@ -49,16 +49,8 @@ def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
     matchDict = {}
     text = text.upper()
     for keyword in keywords:
-        # if BooyerMoore(text, keyword):
-        #     numMatch += 1
-        #     matchedKeywords.append(keyword)
-        #     if keyword in matchDict:
-        #         matchDict[keyword] += 1
-        #     else:
-        #         matchDict[keyword] = 1
-        
         '''
-        In order to prevent the string matching algorithm from matching that are short/possible substrings like I, am, etc
+        In order to prevent the string matching algorithm from matching words that are short/possible substrings like I, am, etc
         We simply add spaces to the beginning and end of the keyword
         '''
         keyword = " " + keyword + " "
