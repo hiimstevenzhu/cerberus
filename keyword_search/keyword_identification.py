@@ -52,6 +52,7 @@ def matchHelper(text: str, clustername) -> tuple[int, List[str]]:
         '''
         In order to prevent the string matching algorithm from matching words that are short/possible substrings like I, am, etc
         We simply add spaces to the beginning and end of the keyword
+        We do the same for text under parse_helper's cleanText function
         '''
         keyword = " " + keyword + " "
         count = BooyerMooreCount(text, keyword)
