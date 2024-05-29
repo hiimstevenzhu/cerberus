@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import json
 
 async def handler(websocket, path):
     item = 0
@@ -25,5 +26,4 @@ async def main():
         await asyncio.Future()  # Run forever
 
 if __name__ == "__main__":
-    import json
     asyncio.run(main())
