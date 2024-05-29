@@ -34,7 +34,7 @@ def matchKeywords(text: str, clustername) -> None:
         print(f"Number of matches: {matchDict}")
     else:
         print("No keywords matched")
-    return
+    return numMatch, matchedKeywords, matchDict
 
 #
 # @description: The main helper function

@@ -89,6 +89,21 @@ To consider:
 - Implementing an ensemble of models, one trained to detect each language, to poll for their confidence in terms of the language spoken (?)
 - Using GPU to train a model off Singlish using the National Speech Corpus
 
+17/05:
+To start:
+
+- Integrating a cloud server for deployment(?), and better GPU resources
+
+23/05:
+Started:
+
+- Implemented a simple website dashboard to simulate the command and control centre.
+- Effectively, this container script will now simulate the input and the access point cloud servers, which deal with data collection, input, and processing.
+
+To complete:
+
+- Updating of script so that we can collect information and send to the dashboard as we require.
+
 # references
 
 https://github.com/openai/whisper
