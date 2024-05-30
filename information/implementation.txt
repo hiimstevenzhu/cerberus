@@ -1,0 +1,4 @@
+We will mimic the local access point with a simple AWS cloud server, containing the deployed ML model.
+
+We will then mimic the central command and control center dashboard with a simplified react dashboard, which triggers on an API call.
+
