@@ -122,6 +122,7 @@ def main():
 
                 # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')
+                print(transcription)
                 for line in transcription:
                     print(line)
                 # Flush stdout.

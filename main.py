@@ -3,6 +3,7 @@ import websockets
 import json
 
 async def handler(websocket, path):
+    print("Starting handler...")
     item = 0
     while True:
         item += 1
