@@ -22,6 +22,9 @@ async def handler(websocket, path):
         await asyncio.sleep(2)
 
 async def main():
+    '''
+    This code tests the websocket server
+    '''
     async with websockets.serve(handler, "localhost", 8765):
         print("WebSocket server is running on ws://localhost:8765")
         await asyncio.Future()  # Run forever

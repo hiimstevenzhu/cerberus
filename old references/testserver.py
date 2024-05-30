@@ -33,6 +33,25 @@ args = parser.parse_args()
 
 # Global variable - our model
 audio_model = None
+# The last time a recording was retrieved from the queue.
+phrase_time = None
+# Thread safe Queue for passing data from the threaded recording callback.
+data_queue = Queue()
+# We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
+recorder = sr.Recognizer()
+recorder.energy_threshold = args.energy_threshold
+# Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
+recorder.dynamic_energy_threshold = False
+# Microphone setup - Linux users will have to edit this line based on the source code, which supports linux implementations
+source = sr.Microphone(sample_rate=16000)
+
+record_timeout = args.record_timeout
+phrase_timeout = args.phrase_timeout
+
+transcription = ['']
+
+with source:
+    recorder.adjust_for_ambient_noise(source)
 
 
 # Setup function for model loading based on arguments
@@ -45,55 +64,35 @@ def setup():
     
 async def handler(websocket, path):
     print("Starting handler...")
-    # The last time a recording was retrieved from the queue.
-    phrase_time = None
-    # Thread safe Queue for passing data from the threaded recording callback.
-    data_queue = Queue()
-    # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
-    recorder = sr.Recognizer()
-    recorder.energy_threshold = args.energy_threshold
-    # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
-    recorder.dynamic_energy_threshold = False
-    # Microphone setup - Linux users will have to edit this line based on the source code, which supports linux implementations
-    source = sr.Microphone(sample_rate=16000)
-    
-    record_timeout = args.record_timeout
-    phrase_timeout = args.phrase_timeout
+    # def record_callback(_, audio:sr.AudioData) -> None:
+    #     """
+    #     Threaded callback function to receive audio data when recordings finish.
+    #     audio: An AudioData containing the recorded bytes.
+    #     """
+    #     # Grab the raw bytes and push it into the thread safe queue.
+    #     data = audio.get_raw_data()
+    #     data_queue.put(data)
 
-    transcription = ['']
+    # # Create a background thread that will pass us raw audio bytes.
+    # # We could do this manually but SpeechRecognizer provides a nice helper.
+    # recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
+    # print("Listening...")
     
-    with source:
-        recorder.adjust_for_ambient_noise(source)
-        
-    def record_callback(_, audio:sr.AudioData) -> None:
-        """
-        Threaded callback function to receive audio data when recordings finish.
-        audio: An AudioData containing the recorded bytes.
-        """
-        # Grab the raw bytes and push it into the thread safe queue.
-        data = audio.get_raw_data()
-        data_queue.put(data)
-
-    # Create a background thread that will pass us raw audio bytes.
-    # We could do this manually but SpeechRecognizer provides a nice helper.
-    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
-    print("Listening...")
-    
-    #  # Create an asyncio event that will continuously listen for audio data
-    # async def listen_audio():
-    #     print("Listening...")
-    #     while True:
-    #         # Record audio data
-    #         with source as src:
-    #             audio_data = recorder.listen(src, timeout=record_timeout)
+     # Create an asyncio event that will continuously listen for audio data
+    async def listen_audio():
+        print("Listening...")
+        while True:
+            # Record audio data
+            with source as src:
+                audio_data = recorder.listen(src, timeout=record_timeout)
             
-    #         # Push audio data to the queue
-    #         data = audio_data.get_raw_data()
-    #         data_queue.put(data)
+            # Push audio data to the queue
+            data = audio_data.get_raw_data()
+            data_queue.put(data)
             
-    #         await asyncio.sleep(0)  # Allow other tasks to run
+            await asyncio.sleep(0)  # Allow other tasks to run
     
-    # listen_task = asyncio.create_task(listen_audio())
+    listen_task = asyncio.create_task(listen_audio())
     
     while True:
         message = {
@@ -163,6 +162,7 @@ async def main():
 
         
 if __name__ == "__main__":
+    print("Starting")
     model = setup()
     audio_model = whisper.load_model(model)
     print("Model loaded.\n")
