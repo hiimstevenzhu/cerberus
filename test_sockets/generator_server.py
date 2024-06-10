@@ -37,8 +37,9 @@ class MessageGenerator:
         await asyncio.gather(producer_task, consumer_task)
 
     def start(self):
-        start_server = websockets.serve(self.handler, "localhost", 8765)
-        print("WebSocket server started on ws://localhost:8765")
+        ipadd = "localhost"
+        start_server = websockets.serve(self.handler, ipadd, 8765)
+        print(f"WebSocket server started on ws://{ipadd}:8765")
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
 
