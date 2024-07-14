@@ -10,6 +10,19 @@ from queue import Queue
 from time import sleep
 from sys import platform
 
+import sys
+import os
+import setuptools.dist
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from keyword_search import keyword_identification as ki
+
+# initialisation
+clusterName = "red"
+keywords = ["Sir stop", "stop sir", "Sir stop Sir", "I", "you", "am"]
+updKeywords = ["Test", "a", 'do not move', 'don\'t move', 'put your hands up']
+ki.insertCluster(keywords, clusterName)
+ki.printCluster(clusterName)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -122,9 +135,8 @@ def main():
 
                 # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')
-                print(transcription)
-                for line in transcription:
-                    print(line)
+                numMatch, matchedKeywords, matchDict = ki.matchKeywords(text, clusterName)
+                print(text)
                 # Flush stdout.
                 print('', end='', flush=True)
             else:
