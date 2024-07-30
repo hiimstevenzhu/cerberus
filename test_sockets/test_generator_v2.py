@@ -13,6 +13,7 @@ from queue import Queue
 from datetime import datetime, timedelta
 from sys import platform
 
+import timeit # recording time elapsed
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -22,6 +23,8 @@ thread_pool = ThreadPoolExecutor(max_workers=4)
 # defining chunk_size?
 CHUNK_SIZE = 16000 * 2  # 5 seconds of audio at 16 kHz
 
+START_TIME = 0
+END_TIME = 0
 
 async def collect_audio(data_queue, audio_buffer):
     while True:
@@ -75,6 +78,8 @@ def process_audio_chunk(chunk, audio_model):
     print("Starting transcription...")
     audio_np = chunk.astype(np.float32) / 32768.0
     result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+    END_TIME = timeit.timeit()
+    print(f"Transcription time: {END_TIME - START_TIME}")
     return result['text'].strip()
 
 
@@ -137,6 +142,8 @@ async def async_main(args):
     def record_callback(_, audio: sr.AudioData) -> None:
         data = audio.get_raw_data()
         print("callback, putting raw audio data into queue...")
+        # RECORDING TIME ELAPSED
+        START_TIME = timeit.timeit()
         data_queue.put_nowait(data)
 
     recorder.listen_in_background(source, record_callback, phrase_time_limit=args.record_timeout)
