@@ -53,25 +53,6 @@ async def transcribe_audio(audio_buffer, transcription_queue, audio_model):
                 await transcription_queue.put(text)
         else:
             await asyncio.sleep(0.1)
-            
-# async def transcribe_audio(audio_buffer, transcription_queue, audio_model):
-#     window = np.array([], dtype=np.int16)
-#     while True:
-#         if len(audio_buffer) > 0:
-#             window = np.concatenate([window, np.array(audio_buffer, dtype=np.int16)])
-#             audio_buffer.clear()
-            
-#             while len(window) >= CHUNK_SIZE:
-#                 chunk = window[:CHUNK_SIZE]
-#                 window = window[CHUNK_SIZE//2:]  # 50% overlap
-                
-#                 text = await asyncio.to_thread(process_audio_chunk, chunk, audio_model)
-                
-#                 if text.strip():
-#                     print(f"Transcribed: {text}")
-#                     await transcription_queue.put(text)
-        
-#         await asyncio.sleep(0.1)
 
 def process_audio_chunk(chunk, audio_model):
     # Chunk is already a numpy array of int16, so we can directly convert it to float32
@@ -82,45 +63,29 @@ def process_audio_chunk(chunk, audio_model):
     print(f"Transcription time: {END_TIME - START_TIME}")
     return result['text'].strip()
 
+async def handle_client(websocket, path, transcription_queue):
+    try:
+        while True:
+            text = await transcription_queue.get()
+            message = {
+                'message': text,
+                'matches': 0,
+                'matched_keywords': [],
+                'match_dict': {},
+            }
+            await websocket.send(json.dumps(message))
+            print(f"Sent: {message['message']}")
+    except websockets.exceptions.ConnectionClosed:
+        print("Client disconnected")
 
+async def start_websocket_server(transcription_queue, port):
+    server = await websockets.serve(
+        lambda ws, path: handle_client(ws, path, transcription_queue),
+        "localhost", port
+    )
+    print(f"WebSocket server started on ws://localhost:{port}")
+    await server.wait_closed()
 
-# # swapped the role of retrieving items and sending it over as under a async function for the whole function to clear
-# async def send_transcription(transcription_queue, websocket_uri):
-#     async with websockets.connect(websocket_uri) as websocket:
-#         while True:
-#             try:
-#                 text = await transcription_queue.get()
-#                 await send_message(text, websocket)
-#             except KeyboardInterrupt:
-#                 break
-#             except Exception as e:
-#                 print(f"Error in send_transcription: {e}")
-#                 await asyncio.sleep(1)  # Wait a bit before retrying
-
-async def send_transcription(transcription_queue, websocket_uri):
-    while True:
-        try:
-            async with websockets.connect(websocket_uri) as websocket:
-                while True:
-                    text = await transcription_queue.get()
-                    await send_message(text, websocket)
-        except websockets.exceptions.ConnectionClosed:
-            print("WebSocket connection closed. Reconnecting...")
-            await asyncio.sleep(5)
-        except Exception as e:
-            print(f"Error in send_transcription: {e}")
-            await asyncio.sleep(5)
-            
-async def send_message(text, websocket):
-    message = {
-                    'message': text,
-                    'matches': 0,
-                    'matched_keywords': [],
-                    'match_dict': {},
-                }
-    print(f"Sent: {message['message']}")
-    await websocket.send(json.dumps(message))
-    
 async def async_main(args):
     data_queue = Queue()
     transcription_queue = asyncio.Queue()
@@ -153,7 +118,7 @@ async def async_main(args):
     tasks = [
         collect_audio(data_queue, audio_buffer),
         transcribe_audio(audio_buffer, transcription_queue, audio_model),
-        send_transcription(transcription_queue, args.websocket_uri)
+        start_websocket_server(transcription_queue, args.port)
     ]
     
     await asyncio.gather(*tasks)
@@ -171,7 +136,7 @@ def main():
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
-    parser.add_argument("--websocket_uri", default="ws://localhost:8765", help="WebSocket server URI", type=str)
+    parser.add_argument("--port", default=8765, help="WebSocket server port", type=int)
     
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
